@@ -25,4 +25,9 @@ class AuthRepository implements IAuthRepository {
   Future<void> logout() {
     return _authDatabase.clearAuth();
   }
+
+  @override
+  Future<void> register(String email, String password) async {
+    await _authService.register(email, password);
+  }
 }

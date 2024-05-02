@@ -22,4 +22,21 @@ class AuthService extends BaseService {
       });
     }
   }
+
+  Future<PostRegisterResponse> register(String email, String password) async {
+    try {
+      final response = await dio.post(
+        '/register',
+        data: {
+          'email': email,
+          'password': password,
+        },
+      );
+      return PostRegisterResponse.fromMap(response.data);
+    } on DioException catch (e) {
+      throw exceptionHandler(e, onBadResponse: (data) {
+        return data['error'];
+      });
+    }
+  }
 }
