@@ -1,6 +1,8 @@
+import 'package:bahaso_mobile_app/presentation/utils/toaster_ext.dart';
 import 'package:flutter/material.dart';
 
 import '../../components/components.dart';
+import '../register/register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -91,8 +93,14 @@ class _LoginPageState extends State<LoginPage> {
                 BasicButton.secondary(
                   width: double.infinity,
                   text: 'Register',
-                  onPressed: () {
-                    // Navigate to register page
+                  onPressed: () async {
+                    _emailController.clear();
+                    _passwordController.clear();
+                    final result = await Navigator.pushNamed(context, RegisterPage.routeName);
+                    if (!context.mounted) return;
+                    if (result == true) {
+                      context.showToastSuccess('Register success');
+                    }
                   },
                 ),
               ],

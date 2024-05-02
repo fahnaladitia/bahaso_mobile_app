@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../ui/main/main_page.dart';
+import '../../ui/register/register_page.dart';
 
 const String initialRoute = MainPage.routeName;
 
@@ -9,6 +10,8 @@ Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case MainPage.routeName:
         return MaterialPageRoute(builder: (context) => const MainPage());
+      case RegisterPage.routeName:
+        return MaterialPageRoute(builder: (context) => const RegisterPage());
       default:
         return MaterialPageRoute(
           builder: (context) => Scaffold(
