@@ -1,6 +1,5 @@
+import 'package:bahaso_mobile_app/presentation/ui/login/login_page.dart';
 import 'package:flutter/material.dart';
-
-import '../home/home_page.dart';
 
 class MainPage extends StatelessWidget {
   static const String routeName = '/';
@@ -8,6 +7,6 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const HomePage();
+    return const LoginPage();
   }
 }
