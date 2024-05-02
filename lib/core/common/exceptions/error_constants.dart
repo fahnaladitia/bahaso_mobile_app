@@ -1,0 +1,10 @@
+const noInternetConnectionError = 'No internet connection';
+const connectionError = 'Connection Error';
+const unknownError = 'Unknown error';
+const connectionTimeoutError = 'Connection timeout';
+const sendTimeoutError = 'Send timeout';
+const receiveTimeoutError = 'Receive timeout';
+const cancelError = 'Request cancelled';
+const badCertificateError = 'Bad certificate';
+const requestCancelledError = 'Request cancelled';
+const noInternetConnectionOrConnectionError = 'No internet connection or Connection Error';

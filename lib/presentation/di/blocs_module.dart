@@ -6,6 +6,6 @@ import '../ui/register/bloc/register_bloc.dart';
 
 Future<void> blocsModule() async {
   getIt.registerFactory(() => RegisterBloc());
-  getIt.registerFactory(() => AuthBloc());
-  getIt.registerFactory(() => LoginBloc());
+  getIt.registerFactory(() => AuthBloc(getIt.get(), getIt.get()));
+  getIt.registerFactory(() => LoginBloc(getIt.get()));
 }

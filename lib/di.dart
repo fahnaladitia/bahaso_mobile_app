@@ -8,6 +8,7 @@ final getIt = GetIt.instance;
 
 Future<void> injectDI() async {
   await remoteModule();
+  await localModule();
   await repositoryModule();
   await useCaseModule();
   await blocsModule();
