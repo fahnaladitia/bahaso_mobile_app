@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:bahaso_mobile_app/core/common/constants.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 
@@ -39,32 +40,30 @@ class DescriptionQuestion extends Question {
 
 class MultipleChoiceQuestion extends Question {
   final int questionNumber;
-  final List<TextAnswer> answers;
+  final List<QuestionDataText> data;
   final String correctAnswer;
-  final TextAnswer? selectedAnswer;
+  final QuestionDataText? selectedData;
   final bool? isCorrect;
   final bool isSubmitted;
   const MultipleChoiceQuestion({
     required super.questionDisplays,
     required this.questionNumber,
     required this.correctAnswer,
-    required this.answers,
+    required this.data,
     this.isCorrect,
-    this.selectedAnswer,
+    this.selectedData,
     this.isSubmitted = false,
   });
 
-  bool isAnswerCorrect() => selectedAnswer?.value == correctAnswer;
+  bool isAnswered() => selectedData != null;
 
-  bool isAnswered() => selectedAnswer != null;
-
-  MultipleChoiceQuestion selectAnswer(TextAnswer answer) {
+  MultipleChoiceQuestion selectAnswer(QuestionDataText selectedData) {
     return MultipleChoiceQuestion(
       questionDisplays: questionDisplays,
       questionNumber: questionNumber,
       correctAnswer: correctAnswer,
-      answers: answers,
-      selectedAnswer: answer,
+      data: data,
+      selectedData: selectedData,
       isCorrect: isCorrect,
       isSubmitted: isSubmitted,
     );
@@ -75,24 +74,24 @@ class MultipleChoiceQuestion extends Question {
       questionDisplays: questionDisplays,
       questionNumber: questionNumber,
       correctAnswer: correctAnswer,
-      answers: answers,
-      selectedAnswer: null,
+      data: data,
+      selectedData: null,
       isCorrect: isCorrect,
       isSubmitted: isSubmitted,
     );
   }
 
   MultipleChoiceQuestion submit() {
-    if (selectedAnswer == null) {
+    if (selectedData == null) {
       return this;
     }
-    final isAnswerCorrect = selectedAnswer?.value == correctAnswer;
+    final isAnswerCorrect = selectedData?.value == correctAnswer;
     return MultipleChoiceQuestion(
       questionDisplays: questionDisplays,
       questionNumber: questionNumber,
       correctAnswer: correctAnswer,
-      answers: answers,
-      selectedAnswer: selectedAnswer,
+      data: data,
+      selectedData: selectedData,
       isCorrect: isAnswerCorrect,
       isSubmitted: true,
     );
@@ -103,8 +102,8 @@ class MultipleChoiceQuestion extends Question {
       questionDisplays: questionDisplays,
       questionNumber: questionNumber,
       correctAnswer: correctAnswer,
-      answers: answers,
-      selectedAnswer: null,
+      data: data,
+      selectedData: null,
       isCorrect: null,
       isSubmitted: false,
     );
@@ -115,8 +114,8 @@ class MultipleChoiceQuestion extends Question {
         questionDisplays,
         questionNumber,
         correctAnswer,
-        answers,
-        selectedAnswer,
+        data,
+        selectedData,
         isCorrect,
         isSubmitted,
       ];
@@ -195,6 +194,140 @@ class PuzzleTextQuestion extends Question {
       }
       return true;
     });
+  }
+
+  @override
+  bool get stringify => true;
+}
+
+class TrueFalseQuestion extends Question {
+  final QuestionDataTrueFalse? selectedData;
+  final String correctAnswer;
+  final bool? isCorrect;
+  final bool isSubmitted;
+  final int questionNumber;
+  final List<QuestionDataTrueFalse> data;
+  const TrueFalseQuestion({
+    required super.questionDisplays,
+    this.selectedData,
+    this.isCorrect,
+    this.isSubmitted = false,
+    required this.questionNumber,
+    required this.data,
+    required this.correctAnswer,
+  });
+
+  bool isAnswered() => selectedData != null;
+
+  TrueFalseQuestion selectAnswer(QuestionDataTrueFalse selectedData) {
+    return TrueFalseQuestion(
+      questionDisplays: questionDisplays,
+      questionNumber: questionNumber,
+      correctAnswer: correctAnswer,
+      data: data,
+      selectedData: selectedData,
+      isCorrect: isCorrect,
+      isSubmitted: isSubmitted,
+    );
+  }
+
+  TrueFalseQuestion submit() {
+    if (selectedData == null) {
+      return this;
+    }
+    final isAnswerCorrect = selectedData?.value == correctAnswer;
+    return TrueFalseQuestion(
+      questionDisplays: questionDisplays,
+      questionNumber: questionNumber,
+      correctAnswer: correctAnswer,
+      data: data,
+      selectedData: selectedData,
+      isCorrect: isAnswerCorrect,
+      isSubmitted: true,
+    );
+  }
+
+  TrueFalseQuestion reset() {
+    return TrueFalseQuestion(
+      questionDisplays: questionDisplays,
+      questionNumber: questionNumber,
+      correctAnswer: correctAnswer,
+      data: data,
+      selectedData: null,
+      isCorrect: null,
+      isSubmitted: false,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        questionDisplays,
+        selectedData,
+        isCorrect,
+        isSubmitted,
+        questionNumber,
+        data,
+        correctAnswer,
+      ];
+
+  @override
+  bool get stringify => true;
+}
+
+class MatchQuestion extends Question {
+  final Map<QuestionDataText, String> selectedData;
+  final List<QuestionData> data;
+  final int questionNumber;
+  const MatchQuestion({
+    required super.questionDisplays,
+    this.selectedData = const {},
+    required this.questionNumber,
+    this.data = const [],
+  });
+
+  List<QuestionDataText> get choices => data.whereType<QuestionDataText>().toList();
+
+  QuestionDataOptions? get options =>
+      data.firstWhereOrNull((element) => element is QuestionDataOptions) as QuestionDataOptions?;
+
+  @override
+  List<Object?> get props => [questionDisplays, selectedData, questionNumber];
+
+  MatchQuestion selectAnswer(String place) {
+    final updated = Map<QuestionDataText, String>.from(selectedData);
+    logger.d("selectedData:MatchQuestion $selectedData");
+    QuestionDataText? choice = choices.firstWhereOrNull((element) => updated[element] == null);
+
+    if (choice != null) {
+      if (!updated.containsKey(choice)) {
+        updated.addAll({choice: place});
+      } else {
+        updated.update(choice, (value) => place);
+      }
+    }
+
+    return MatchQuestion(
+      questionDisplays: questionDisplays,
+      questionNumber: questionNumber,
+      selectedData: updated,
+      data: data,
+    );
+  }
+
+  MatchQuestion removeAnswer(QuestionDataText choice) {
+    final updated = Map<QuestionDataText, String>.from(selectedData);
+    updated.remove(choice);
+
+    return MatchQuestion(
+      questionDisplays: questionDisplays,
+      questionNumber: questionNumber,
+      selectedData: updated,
+      data: data,
+    );
+  }
+
+  bool isAnswered() {
+    return selectedData.length == questionDisplays.length;
   }
 
   @override
@@ -280,10 +413,10 @@ const dummyQuestions = [
       ),
       TextQuestionDisplay(question: "What is her name?"),
     ],
-    answers: [
-      TextAnswer(text: "Her name is Briana.", value: "0", name: "q13766:8_answer"),
-      TextAnswer(text: "Her name is Jack.", value: "1", name: "q13766:8_answer"),
-      TextAnswer(text: "Her name is Diana.", value: "2", name: "q13766:8_answer"),
+    data: [
+      QuestionDataText(name: "q13766:8_answer", value: "0", text: "Her name is Briana."),
+      QuestionDataText(name: "q13766:8_answer", value: "1", text: "Her name is Jack."),
+      QuestionDataText(name: "q13766:8_answer", value: "2", text: "Her name is Diana."),
     ],
     correctAnswer: "1",
   ),
@@ -296,10 +429,10 @@ const dummyQuestions = [
       ),
       TextQuestionDisplay(question: "Who is he?"),
     ],
-    answers: [
-      TextAnswer(text: "Her name is Susilo.", value: "0", name: "q13766:12_answer"),
-      TextAnswer(text: "His name is Susilo.", value: "1", name: "q13766:12_answer"),
-      TextAnswer(text: "She is Susilo.", value: "2", name: "q13766:12_answer"),
+    data: [
+      QuestionDataText(name: "q13766:12_answer", value: "0", text: "Her name is Susilo."),
+      QuestionDataText(name: "q13766:12_answer", value: "1", text: "His name is Susilo."),
+      QuestionDataText(name: "q13766:12_answer", value: "2", text: "She is Susilo."),
     ],
     correctAnswer: "1",
   ),
@@ -376,50 +509,97 @@ const dummyQuestions = [
       QuestionDataChoice(name: "name is", value: 3),
     ],
   ),
+  TrueFalseQuestion(
+    questionNumber: 9,
+    correctAnswer: "1",
+    questionDisplays: [
+      TextQuestionDisplay(question: "Tentukan benar atau salah berdasarkan gambar berikut ini"),
+      ImageQuestionDisplay(
+        question:
+            "https://learning.test.bahaso.com/getpluginfile.php/18/question/questiontext/13766/14/67325/Soekarno.png?time=1692342404137",
+      ),
+      TextQuestionDisplay(question: "Her name is Soekarno."),
+      TextQuestionDisplay(question: "Apakah pernyataan ini benar?"),
+    ],
+    data: [
+      QuestionDataTrueFalse(name: "q13766:14_answer", value: "1", status: true),
+      QuestionDataTrueFalse(name: "q13766:14_answer", value: "0", status: false),
+    ],
+  ),
+  DescriptionQuestion(
+    questionNumber: "i.4",
+    questionDisplays: [
+      TextQuestionDisplay(question: "Perhatikan percakapan berikut ini"),
+      ImageQuestionDisplay(
+        question:
+            "https://learning.test.bahaso.com/getpluginfile.php/18/question/questiontext/13766/16/67330/Ben%20nunjuk%20Karen.jpg?time=1692342557585",
+      ),
+      AudioQuestionDisplay(
+          question:
+              "https://learning.test.bahaso.com/getpluginfile.php/18/question/questiontext/13766/16/67330/This%20is%20my%20friend%20%28conversation%29.mp3?time=1692342640330"),
+      TextQuestionDisplay(question: "Ben : This is my friend. Her name is Karen."),
+    ],
+  ),
+  MatchQuestion(
+    questionNumber: 10,
+    questionDisplays: [
+      TextQuestionDisplay(question: "Pilih verb be yang tepat untuk kalimat di bawah ini"),
+    ],
+    data: [
+      QuestionDataOptions(["Choose...", "are", "am", "is"]),
+      QuestionDataText(text: "Their names ___ Brandon and Billy.", name: "q13766:27_sub0", value: "0"),
+      QuestionDataText(text: "They ___ Sonny, Doni, and Tina.", name: "q13766:27_sub1", value: "0"),
+      QuestionDataText(text: "I ___ John.", name: "q13766:27_sub2", value: "0"),
+      QuestionDataText(text: "He ___ Toni.", name: "q13766:27_sub3", value: "0"),
+    ],
+  )
 ];
 
+// "datatext": [
+//           {
+//             "text": "Their names ___ Brandon and Billy.",
+//             "name": "q13766:27_sub0",
+//             "value": 0
+//           },
+//           {
+//             "text": "They ___ Sonny, Doni, and Tina.",
+//             "name": "q13766:27_sub1",
+//             "value": 0
+//           },
+//           {
+//             "text": "I ___ John.",
+//             "name": "q13766:27_sub2",
+//             "value": 0
+//           },
+//           {
+//             "text": "He ___ Toni.",
+//             "name": "q13766:27_sub3",
+//             "value": 0
+//           }
+//         ]
 
 // {
 //       "question": [
-//         "Susun kata-kata di bawah ini menjadi kalimat yang benar",
-//         " blank  blank  blank"
+//         "Tentukan benar atau salah berdasarkan gambarberikut ini",
+//         "https://learning.test.bahaso.com/getpluginfile.php/18/question/questiontext/13766/14/67325/Soekarno.png?time=1692342404137",
+//         "Her name is Soekarno.",
+//         "Apakah pernyataan ini benar?"
 //       ],
-//       "questionnumber": 4,
-//       "typequestion": "ddwtos",
-//       "name": "q13766:11_:sequencecheck",
+//       "questionnumber": 6,
+//       "typequestion": "truefalse",
+//       "name": "q13766:14_:sequencecheck",
 //       "value": "1",
 //       "grade": 1,
-//       "data": {
-//         "dataimage": [
-          
-//         ],
-//         "dataplace": [
-//           {
-//             "name": "q13766:11_p1",
-//             "value": "0"
-//           },
-//           {
-//             "name": "q13766:11_p2",
-//             "value": "0"
-//           },
-//           {
-//             "name": "q13766:11_p3",
-//             "value": "0"
-//           }
-//         ],
-//         "datachoice": [
-//           {
-//             "name": "Karen.",
-//             "value": 1
-//           },
-//           {
-//             "name": "Her",
-//             "value": 2
-//           },
-//           {
-//             "name": "name is",
-//             "value": 3
-//           }
-//         ]
-//       }
+//       "data": [
+//         {
+//           "text": "True",
+//           "name": "q13766:14_answer",
+//           "value": "1"
+//         },
+//         {
+//           "text": "False",
+//           "name": "q13766:14_answer",
+//           "value": "0"
+//         }
+//       ]
 //     },

@@ -91,6 +91,12 @@ class BuildDisplayQuestion extends StatelessWidget {
       case MultipleChoiceQuestion:
         final multipleChoiceQuestion = question as MultipleChoiceQuestion;
         return Text("${multipleChoiceQuestion.questionNumber}.");
+      case TrueFalseQuestion:
+        final trueFalseQuestion = question as TrueFalseQuestion;
+        return Text("${trueFalseQuestion.questionNumber}.");
+      case MatchQuestion:
+        final matchQuestion = question as MatchQuestion;
+        return Text("${matchQuestion.questionNumber}.");
       default:
         return const SizedBox.shrink();
     }

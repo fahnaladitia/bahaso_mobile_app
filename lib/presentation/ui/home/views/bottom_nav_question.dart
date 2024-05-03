@@ -2,6 +2,7 @@ import 'package:bahaso_mobile_app/core/common/constants.dart';
 import 'package:bahaso_mobile_app/domain/models/models.dart';
 import 'package:bahaso_mobile_app/presentation/components/components.dart';
 import 'package:bahaso_mobile_app/presentation/ui/home/bloc/questions_bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -98,8 +99,9 @@ class BottomNavQuestion extends StatelessWidget {
     Question question,
   ) {
     final isSelected = index == currentIndex;
-    final isAnsweredOrDisplayed = (question is MultipleChoiceQuestion && question.selectedAnswer != null) ||
-        (question is DescriptionQuestion && question.isDisplay);
+    final isAnsweredOrDisplayed = (question is MultipleChoiceQuestion && question.selectedData != null) ||
+        (question is DescriptionQuestion && question.isDisplay) ||
+        (question is TrueFalseQuestion && question.isCorrect != null);
     final color = isSelected
         ? Colors.blue
         : isAnsweredOrDisplayed
@@ -114,7 +116,7 @@ class BottomNavQuestion extends StatelessWidget {
         decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
         child: Center(
           child: Text(
-            '${index + 1}',
+            _getQuestionIndicatorText(question),
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white),
           ),
         ),
@@ -133,6 +135,12 @@ class BottomNavQuestion extends StatelessWidget {
           if (question is PuzzleTextQuestion) {
             return _buildPuzzleTextChoices(context, question);
           }
+          if (question is TrueFalseQuestion) {
+            return _buildTrueFalseChoices(context, question);
+          }
+          if (question is MatchQuestion) {
+            return _buildMatchChoices(context, question);
+          }
         }
         return const SizedBox.shrink();
       },
@@ -146,10 +154,10 @@ class BottomNavQuestion extends StatelessWidget {
         Column(
           children: List.generate(
             growable: true,
-            question.answers.length,
+            question.data.length,
             (index) {
-              final choice = question.answers[index];
-              final isSelected = question.selectedAnswer == choice;
+              final choice = question.data[index];
+              final isSelected = question.selectedData == choice;
 
               final isSubmitted = question.isSubmitted;
 
@@ -194,8 +202,7 @@ class BottomNavQuestion extends StatelessWidget {
                     child: BasicButton.primary(
                       width: double.infinity,
                       text: question.isSubmitted ? 'retry' : 'Submit',
-                      onPressed:
-                          question.selectedAnswer != null ? () => _onSubmit(context, question.isSubmitted) : null,
+                      onPressed: question.selectedData != null ? () => _onSubmit(context, question.isSubmitted) : null,
                     ),
                   ),
                 ],
@@ -204,10 +211,11 @@ class BottomNavQuestion extends StatelessWidget {
     );
   }
 
-  void _onChoiceSelected(BuildContext context, bool isSelected, Answer choice) {
+  void _onChoiceSelected(BuildContext context, bool isSelected, QuestionDataText? choice) {
     if (isSelected) {
-      context.read<QuestionsBloc>().add(QuestionsUnselectAnswerEvent());
+      context.read<QuestionsBloc>().add(QuestionsUnselectAnswerEvent(choice));
     } else {
+      if (choice == null) return;
       context.read<QuestionsBloc>().add(QuestionsSelectAnswerEvent(choice));
     }
   }
@@ -285,5 +293,145 @@ class BottomNavQuestion extends StatelessWidget {
 
   _onPuzzleTextChoiceSelected(BuildContext context, QuestionDataChoice choice) {
     context.read<QuestionsBloc>().add(QuestionsSelectPuzzleTextAnswerEvent(choice: choice));
+  }
+
+  String _getQuestionIndicatorText(Question question) {
+    switch (question.runtimeType) {
+      case MultipleChoiceQuestion:
+        final multipleChoiceQuestion = question as MultipleChoiceQuestion;
+        return multipleChoiceQuestion.questionNumber.toString();
+      case DescriptionQuestion:
+        final descriptionQuestion = question as DescriptionQuestion;
+        return descriptionQuestion.questionNumber;
+      case PuzzleTextQuestion:
+        final puzzleTextQuestion = question as PuzzleTextQuestion;
+        return puzzleTextQuestion.questionNumber.toString();
+      case TrueFalseQuestion:
+        final trueFalseQuestion = question as TrueFalseQuestion;
+        return trueFalseQuestion.questionNumber.toString();
+      case MatchQuestion:
+        final matchQuestion = question as MatchQuestion;
+        return matchQuestion.questionNumber.toString();
+      default:
+        return '';
+    }
+  }
+
+  Widget _buildTrueFalseChoices(BuildContext context, TrueFalseQuestion question) {
+    return Column(
+      children: [
+        const Divider(),
+        Column(
+          children: List.generate(
+            question.data.length,
+            (index) {
+              final choice = question.data[index];
+              final isSelected = question.selectedData == choice;
+
+              final isSubmitted = question.isSubmitted;
+
+              final color = isSelected
+                  ? isSubmitted
+                      ? question.isCorrect == true
+                          ? Colors.green
+                          : Colors.red
+                      : Colors.blue
+                  : Colors.grey;
+
+              return GestureDetector(
+                onTap: isSubmitted ? null : () => _onTrueFalseChoiceSelected(context, choice),
+                child: Container(
+                  margin: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      choice.status ? Icons.check : Icons.close,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        question.isSubmitted
+            ? question.isCorrect == true
+                ? const Text('Correct!', style: TextStyle(color: Colors.green))
+                : const Text('Incorrect!', style: TextStyle(color: Colors.red))
+            : const SizedBox.shrink(),
+        question.isSubmitted && question.isCorrect == true
+            ? const SizedBox.shrink()
+            : Column(
+                children: [
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: BasicButton.primary(
+                      width: double.infinity,
+                      text: question.isSubmitted ? 'retry' : 'Submit',
+                      onPressed: question.selectedData != null ? () => _onSubmit(context, question.isSubmitted) : null,
+                    ),
+                  ),
+                ],
+              ),
+      ],
+    );
+  }
+
+  _onTrueFalseChoiceSelected(BuildContext context, QuestionDataTrueFalse choice) {
+    context.read<QuestionsBloc>().add(QuestionsSelectAnswerEvent(choice));
+  }
+
+  Widget _buildMatchChoices(BuildContext context, MatchQuestion question) {
+    final options = question.options;
+    return Column(
+      children: [
+        const Divider(),
+        Column(
+          children: List.generate(
+            options?.choices.length ?? 0,
+            (index) {
+              final choice = options?.choices[index] ?? "";
+              final isSelected = question.selectedData.containsValue(choice);
+              final dataTextEntry = question.selectedData
+                  .map((key, value) => MapEntry(value, key))
+                  .entries
+                  .firstWhereOrNull((element) => element.key == choice);
+              final dataText = dataTextEntry?.value;
+
+              final color = isSelected ? Colors.blue : Colors.grey;
+
+              return GestureDetector(
+                onTap: () => _onMatchChoiceSelected(context, dataText, choice, isSelected: isSelected),
+                child: Container(
+                  margin: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    choice,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  _onMatchChoiceSelected(BuildContext context, QuestionDataText? dataText, String choice, {bool isSelected = false}) {
+    if (isSelected) {
+      context.read<QuestionsBloc>().add(QuestionsUnselectAnswerEvent(dataText));
+    } else {
+      context.read<QuestionsBloc>().add(QuestionsSelectMatchAnswerEvent(choice));
+    }
   }
 }

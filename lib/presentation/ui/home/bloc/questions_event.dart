@@ -4,7 +4,7 @@ sealed class QuestionsEvent extends Equatable {
   const QuestionsEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 final class QuestionsFetchEvent extends QuestionsEvent {}
@@ -26,18 +26,29 @@ final class QuestionsMovieToQuestionEvent extends QuestionsEvent {
 }
 
 final class QuestionsSelectAnswerEvent extends QuestionsEvent {
-  final Answer answer;
+  final QuestionData selectedData;
+  final String? selectedOption;
 
-  const QuestionsSelectAnswerEvent(this.answer);
+  const QuestionsSelectAnswerEvent(this.selectedData, {this.selectedOption});
 
   @override
-  List<Object> get props => [answer];
+  List<Object?> get props => [selectedData, selectedOption];
 
   @override
   bool get stringify => true;
 }
 
-final class QuestionsUnselectAnswerEvent extends QuestionsEvent {}
+final class QuestionsUnselectAnswerEvent extends QuestionsEvent {
+  final QuestionDataText? selectedData;
+
+  const QuestionsUnselectAnswerEvent([this.selectedData]);
+
+  @override
+  List<Object?> get props => [selectedData];
+
+  @override
+  bool get stringify => true;
+}
 
 final class QuestionsSubmitEvent extends QuestionsEvent {}
 
@@ -50,6 +61,9 @@ final class QuestionsSelectPuzzleTextAnswerEvent extends QuestionsEvent {
   const QuestionsSelectPuzzleTextAnswerEvent({this.place, required this.choice});
 
   @override
+  List<Object?> get props => [choice, place];
+
+  @override
   bool get stringify => true;
 }
 
@@ -57,6 +71,21 @@ final class QuestionsRemovePuzzleTextAnswerEvent extends QuestionsEvent {
   final QuestionDataPlace place;
 
   const QuestionsRemovePuzzleTextAnswerEvent(this.place);
+
+  @override
+  List<Object?> get props => [place];
+
+  @override
+  bool get stringify => true;
+}
+
+final class QuestionsSelectMatchAnswerEvent extends QuestionsEvent {
+  final String choice;
+
+  const QuestionsSelectMatchAnswerEvent(this.choice);
+
+  @override
+  List<Object?> get props => [choice];
 
   @override
   bool get stringify => true;

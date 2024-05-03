@@ -85,8 +85,13 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
       if (state is QuestionsLoaded) {
         final currentState = state as QuestionsLoaded;
         final currentQuestion = currentState.currentQuestion;
-        if (currentQuestion is MultipleChoiceQuestion && event.answer is TextAnswer) {
-          final updatedQuestion = currentQuestion.selectAnswer(event.answer as TextAnswer);
+        if (currentQuestion is MultipleChoiceQuestion) {
+          final updatedQuestion = currentQuestion.selectAnswer(event.selectedData as QuestionDataText);
+          _questions[_questions.indexOf(currentQuestion)] = updatedQuestion;
+          emit(QuestionsLoaded(_questions, updatedQuestion, _questions.indexOf(updatedQuestion)));
+        }
+        if (currentQuestion is TrueFalseQuestion) {
+          final updatedQuestion = currentQuestion.selectAnswer(event.selectedData as QuestionDataTrueFalse);
           _questions[_questions.indexOf(currentQuestion)] = updatedQuestion;
           emit(QuestionsLoaded(_questions, updatedQuestion, _questions.indexOf(updatedQuestion)));
         }
@@ -102,6 +107,11 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
           _questions[_questions.indexOf(currentQuestion)] = updatedQuestion;
           emit(QuestionsLoaded(_questions, updatedQuestion, _questions.indexOf(updatedQuestion)));
         }
+        if (currentQuestion is MatchQuestion) {
+          final updatedQuestion = currentQuestion.removeAnswer(event.selectedData as QuestionDataText);
+          _questions[_questions.indexOf(currentQuestion)] = updatedQuestion;
+          emit(QuestionsLoaded(_questions, updatedQuestion, _questions.indexOf(updatedQuestion)));
+        }
       }
     });
 
@@ -111,7 +121,18 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
         if (currentState.currentQuestion is MultipleChoiceQuestion) {
           final updatedQuestion = currentState.currentQuestion as MultipleChoiceQuestion;
 
-          if (updatedQuestion.selectedAnswer == null) {
+          if (updatedQuestion.selectedData == null) {
+            return;
+          }
+          final submitted = updatedQuestion.submit();
+
+          _questions[_questions.indexOf(updatedQuestion)] = submitted;
+          emit(QuestionsLoaded(_questions, submitted, currentState.currentQuestionIndex));
+        }
+        if (currentState.currentQuestion is TrueFalseQuestion) {
+          final updatedQuestion = currentState.currentQuestion as TrueFalseQuestion;
+
+          if (updatedQuestion.selectedData == null) {
             return;
           }
           final submitted = updatedQuestion.submit();
@@ -127,6 +148,15 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
         final currentState = state as QuestionsLoaded;
         final currentQuestion = currentState.currentQuestion;
         if (currentQuestion is MultipleChoiceQuestion) {
+          final updatedQuestion = currentQuestion.reset();
+          _questions[_questions.indexOf(currentQuestion)] = updatedQuestion;
+          emit(QuestionsLoaded(_questions, updatedQuestion, _questions.indexOf(updatedQuestion)));
+        }
+      }
+      if (state is QuestionsLoaded) {
+        final currentState = state as QuestionsLoaded;
+        final currentQuestion = currentState.currentQuestion;
+        if (currentQuestion is TrueFalseQuestion) {
           final updatedQuestion = currentQuestion.reset();
           _questions[_questions.indexOf(currentQuestion)] = updatedQuestion;
           emit(QuestionsLoaded(_questions, updatedQuestion, _questions.indexOf(updatedQuestion)));
@@ -156,6 +186,22 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
         final currentQuestion = currentState.currentQuestion;
         if (currentQuestion is PuzzleTextQuestion) {
           final updatedQuestion = currentQuestion.removeAnswer(event.place);
+          _questions[currentState.currentQuestionIndex] = updatedQuestion;
+          emit(QuestionsLoaded(
+            _questions,
+            _questions[currentState.currentQuestionIndex],
+            currentState.currentQuestionIndex,
+          ));
+        }
+      }
+    });
+
+    on<QuestionsSelectMatchAnswerEvent>((event, emit) {
+      if (state is QuestionsLoaded) {
+        final currentState = state as QuestionsLoaded;
+        final currentQuestion = currentState.currentQuestion;
+        if (currentQuestion is MatchQuestion) {
+          final updatedQuestion = currentQuestion.selectAnswer(event.choice);
           _questions[currentState.currentQuestionIndex] = updatedQuestion;
           emit(QuestionsLoaded(
             _questions,
