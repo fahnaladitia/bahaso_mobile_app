@@ -56,7 +56,7 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
           if (nextQuestion is DescriptionQuestion) {
             final updatedQuestion = nextQuestion.selectToDisplay();
             _questions[_questions.indexOf(nextQuestion)] = updatedQuestion;
-            emit(QuestionsLoaded(_questions, nextQuestion, currentIndex + 1));
+            emit(QuestionsLoaded(_questions, updatedQuestion, currentIndex + 1));
           } else {
             emit(QuestionsLoaded(_questions, nextQuestion, currentIndex + 1));
           }
@@ -85,8 +85,8 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
       if (state is QuestionsLoaded) {
         final currentState = state as QuestionsLoaded;
         final currentQuestion = currentState.currentQuestion;
-        if (currentQuestion is MultipleChoiceQuestion) {
-          final updatedQuestion = currentQuestion.selectAnswer(event.answer);
+        if (currentQuestion is MultipleChoiceQuestion && event.answer is TextAnswer) {
+          final updatedQuestion = currentQuestion.selectAnswer(event.answer as TextAnswer);
           _questions[_questions.indexOf(currentQuestion)] = updatedQuestion;
           emit(QuestionsLoaded(_questions, updatedQuestion, _questions.indexOf(updatedQuestion)));
         }
@@ -130,6 +130,38 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
           final updatedQuestion = currentQuestion.reset();
           _questions[_questions.indexOf(currentQuestion)] = updatedQuestion;
           emit(QuestionsLoaded(_questions, updatedQuestion, _questions.indexOf(updatedQuestion)));
+        }
+      }
+    });
+
+    on<QuestionsSelectPuzzleTextAnswerEvent>((event, emit) {
+      if (state is QuestionsLoaded) {
+        final currentState = state as QuestionsLoaded;
+        final currentQuestion = currentState.currentQuestion;
+        if (currentQuestion is PuzzleTextQuestion) {
+          final updatedQuestion = currentQuestion.selectAnswer(event.choice, event.place);
+          _questions[currentState.currentQuestionIndex] = updatedQuestion;
+          emit(QuestionsLoaded(
+            _questions,
+            _questions[currentState.currentQuestionIndex],
+            currentState.currentQuestionIndex,
+          ));
+        }
+      }
+    });
+
+    on<QuestionsRemovePuzzleTextAnswerEvent>((event, emit) {
+      if (state is QuestionsLoaded) {
+        final currentState = state as QuestionsLoaded;
+        final currentQuestion = currentState.currentQuestion;
+        if (currentQuestion is PuzzleTextQuestion) {
+          final updatedQuestion = currentQuestion.removeAnswer(event.place);
+          _questions[currentState.currentQuestionIndex] = updatedQuestion;
+          emit(QuestionsLoaded(
+            _questions,
+            _questions[currentState.currentQuestionIndex],
+            currentState.currentQuestionIndex,
+          ));
         }
       }
     });

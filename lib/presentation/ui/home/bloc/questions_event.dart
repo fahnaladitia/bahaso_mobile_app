@@ -42,3 +42,22 @@ final class QuestionsUnselectAnswerEvent extends QuestionsEvent {}
 final class QuestionsSubmitEvent extends QuestionsEvent {}
 
 final class QuestionsResetEvent extends QuestionsEvent {}
+
+final class QuestionsSelectPuzzleTextAnswerEvent extends QuestionsEvent {
+  final QuestionDataChoice choice;
+  final QuestionDataPlace? place;
+
+  const QuestionsSelectPuzzleTextAnswerEvent({this.place, required this.choice});
+
+  @override
+  bool get stringify => true;
+}
+
+final class QuestionsRemovePuzzleTextAnswerEvent extends QuestionsEvent {
+  final QuestionDataPlace place;
+
+  const QuestionsRemovePuzzleTextAnswerEvent(this.place);
+
+  @override
+  bool get stringify => true;
+}

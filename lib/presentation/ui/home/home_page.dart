@@ -1,6 +1,7 @@
 import 'package:bahaso_mobile_app/di.dart';
 import 'package:bahaso_mobile_app/presentation/blocs/blocs.dart';
 import 'package:bahaso_mobile_app/presentation/ui/home/bloc/questions_bloc.dart';
+import 'package:bahaso_mobile_app/presentation/ui/home/views/build_display_question.dart';
 
 import 'package:bahaso_mobile_app/presentation/utils/toaster_ext.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +11,6 @@ import '../../../domain/models/models.dart';
 
 import 'dialog/logout_confirmation_dialog.dart';
 import 'views/bottom_nav_question.dart';
-import 'views/question_description_display.dart';
-import 'views/question_multiple_choice_display.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -90,11 +89,9 @@ class _HomePageState extends State<HomePage> {
   Widget _buildBody(QuestionsLoaded state) {
     switch (state.currentQuestion.runtimeType) {
       case MultipleChoiceQuestion:
-        final question = state.currentQuestion as MultipleChoiceQuestion;
-        return QuestionMultipleChoiceDisplay(question: question);
       case DescriptionQuestion:
-        final question = state.currentQuestion as DescriptionQuestion;
-        return QuestionDescriptionDisplay(question: question);
+      case PuzzleTextQuestion:
+        return BuildDisplayQuestion(question: state.currentQuestion);
       default:
         return const SizedBox.shrink();
     }

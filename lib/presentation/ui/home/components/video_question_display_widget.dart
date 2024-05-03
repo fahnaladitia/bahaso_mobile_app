@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoQuestionDisplayWidget extends StatefulWidget {
-  final VideoQuestion videoQuestionDisplay;
+  final VideoQuestionDisplay videoQuestionDisplay;
   const VideoQuestionDisplayWidget({Key? key, required this.videoQuestionDisplay}) : super(key: key);
 
   @override

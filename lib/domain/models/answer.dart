@@ -1,11 +1,17 @@
 import 'package:equatable/equatable.dart';
 
-class Answer extends Equatable {
+sealed class Answer extends Equatable {
+  const Answer();
+  @override
+  List<Object?> get props => [];
+}
+
+class TextAnswer extends Answer {
   final String text;
   final String name;
   final String value;
 
-  const Answer({
+  const TextAnswer({
     required this.text,
     required this.name,
     required this.value,

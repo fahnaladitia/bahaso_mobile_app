@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:bahaso_mobile_app/domain/models/models.dart';
 
 class AudioQuestionDisplayWidget extends StatefulWidget {
-  final AudioQuestion audioQuestionDisplay;
+  final AudioQuestionDisplay audioQuestionDisplay;
   const AudioQuestionDisplayWidget({
     Key? key,
     required this.audioQuestionDisplay,

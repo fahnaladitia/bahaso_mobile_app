@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'audio_question_display_widget.dart';
 
 class ImageQuestionDisplayWidget extends StatelessWidget {
-  final ImageQuestion questionDisplay;
-  final AudioQuestion? audioQuestionDisplay;
+  final ImageQuestionDisplay questionDisplay;
+  final AudioQuestionDisplay? audioQuestionDisplay;
   const ImageQuestionDisplayWidget({Key? key, required this.questionDisplay, this.audioQuestionDisplay})
       : super(key: key);
 

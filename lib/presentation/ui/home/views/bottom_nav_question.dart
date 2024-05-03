@@ -1,3 +1,4 @@
+import 'package:bahaso_mobile_app/core/common/constants.dart';
 import 'package:bahaso_mobile_app/domain/models/models.dart';
 import 'package:bahaso_mobile_app/presentation/components/components.dart';
 import 'package:bahaso_mobile_app/presentation/ui/home/bloc/questions_bloc.dart';
@@ -15,6 +16,7 @@ class BottomNavQuestion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    logger.d('${questions.length} - $currentIndex');
     final bool isLastQuestion = currentIndex == questions.length - 1;
     final bool isFirstQuestion = currentIndex == 0;
     final bool isCurrentIsFilled = questions[currentIndex] is MultipleChoiceQuestion &&
@@ -128,6 +130,9 @@ class BottomNavQuestion extends StatelessWidget {
           if (question is MultipleChoiceQuestion) {
             return _buildMultipleChoiceChoices(context, question);
           }
+          if (question is PuzzleTextQuestion) {
+            return _buildPuzzleTextChoices(context, question);
+          }
         }
         return const SizedBox.shrink();
       },
@@ -140,6 +145,7 @@ class BottomNavQuestion extends StatelessWidget {
         const Divider(),
         Column(
           children: List.generate(
+            growable: true,
             question.answers.length,
             (index) {
               final choice = question.answers[index];
@@ -212,5 +218,72 @@ class BottomNavQuestion extends StatelessWidget {
     } else {
       context.read<QuestionsBloc>().add(QuestionsSubmitEvent());
     }
+  }
+
+  Widget _buildPuzzleTextChoices(BuildContext context, PuzzleTextQuestion question) {
+    final questionPlaces = question.places.where((element) => element.choice != null).toList();
+    return Column(
+      children: [
+        questionPlaces.isNotEmpty
+            ? Column(
+                children: [
+                  const Divider(),
+                  ListViewHorizontal(
+                    itemCount: questionPlaces.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final place = questionPlaces[index];
+                      return GestureDetector(
+                        onTap: () => context.read<QuestionsBloc>().add(QuestionsRemovePuzzleTextAnswerEvent(place)),
+                        child: Container(
+                          margin: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            place.choice?.name ?? "",
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              )
+            : const SizedBox.shrink(),
+        const Divider(),
+        Column(
+          children: List.generate(
+            question.choices.length,
+            (index) {
+              final choice = question.choices[index];
+
+              final isSubmitted = question.isSubmitted;
+
+              return GestureDetector(
+                onTap: isSubmitted ? null : () => _onPuzzleTextChoiceSelected(context, choice),
+                child: Container(
+                  margin: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    choice.name,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  _onPuzzleTextChoiceSelected(BuildContext context, QuestionDataChoice choice) {
+    context.read<QuestionsBloc>().add(QuestionsSelectPuzzleTextAnswerEvent(choice: choice));
   }
 }
