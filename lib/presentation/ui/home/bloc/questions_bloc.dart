@@ -1,3 +1,5 @@
+import 'package:bahaso_mobile_app/core/common/constants.dart';
+import 'package:bahaso_mobile_app/domain/usecases/usecases.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -7,13 +9,13 @@ part 'questions_event.dart';
 part 'questions_state.dart';
 
 class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
+  final QuestionsUseCase _questionsUseCase;
   final List<Question> _questions = [];
-  QuestionsBloc() : super(QuestionsInitial()) {
+  QuestionsBloc(this._questionsUseCase) : super(QuestionsInitial()) {
     on<QuestionsFetchEvent>((event, emit) async {
       emit(QuestionsLoading());
       try {
-        await Future.delayed(const Duration(seconds: 2));
-        const questions = dummyQuestions;
+        final questions = await _questionsUseCase();
         if (questions.isEmpty) {
           emit(QuestionsEmpty());
         } else {
@@ -28,6 +30,7 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
           }
         }
       } catch (e) {
+        logger.e(e.toString());
         emit(QuestionsError(e.toString()));
       }
     });

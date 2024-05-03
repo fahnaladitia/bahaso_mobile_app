@@ -5,4 +5,5 @@ import '../repositories/repositories.dart';
 Future<void> repositoryModule() async {
   // Register all repositories here
   getIt.registerSingleton<IAuthRepository>(AuthRepository(getIt.get(), getIt.get()));
+  getIt.registerSingleton<IQuestionsRepository>(QuestionsRepository(getIt.get()));
 }

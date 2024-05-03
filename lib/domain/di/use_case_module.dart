@@ -7,4 +7,5 @@ Future<void> useCaseModule() async {
   getIt.registerFactory<CheckLoginUseCase>(() => CheckLoginInteractor(getIt()));
   getIt.registerFactory<LogoutUseCase>(() => LogoutInteractor(getIt()));
   getIt.registerFactory<RegisterUseCase>(() => RegisterInteractor(getIt()));
+  getIt.registerFactory<QuestionsUseCase>(() => QuestionsInteractor(getIt()));
 }

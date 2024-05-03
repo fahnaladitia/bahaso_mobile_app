@@ -9,5 +9,5 @@ Future<void> blocsModule() async {
   getIt.registerFactory(() => RegisterBloc(getIt.get()));
   getIt.registerFactory(() => AuthBloc(getIt.get(), getIt.get()));
   getIt.registerFactory(() => LoginBloc(getIt.get()));
-  getIt.registerFactory(() => QuestionsBloc());
+  getIt.registerFactory(() => QuestionsBloc(getIt.get()));
 }
