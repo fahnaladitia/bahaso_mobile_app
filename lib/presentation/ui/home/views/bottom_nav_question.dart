@@ -1,4 +1,5 @@
 import 'package:bahaso_mobile_app/domain/models/models.dart';
+import 'package:bahaso_mobile_app/domain/utils/question_ext.dart';
 import 'package:bahaso_mobile_app/presentation/components/components.dart';
 import 'package:bahaso_mobile_app/presentation/ui/home/bloc/questions_bloc.dart';
 import 'package:bahaso_mobile_app/presentation/utils/toaster_ext.dart';
@@ -16,9 +17,9 @@ class BottomNavQuestion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLastQuestion = currentIndex == questions.length - 1;
-    final bool isFirstQuestion = currentIndex == 0;
-    final bool isCurrentIsFilled = _isCurrentIsFilled();
+    final bool isFirstQuestion = questions.isFirstQuestionWithIndex(currentIndex);
+    final bool isLastQuestion = questions.isLastQuestionWithIndex(currentIndex);
+    final bool iCompleted = questions[currentIndex].isCompleted();
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,14 +54,14 @@ class BottomNavQuestion extends StatelessWidget {
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () {
-                      if (!isLastQuestion && isCurrentIsFilled) {
+                      if (!isLastQuestion && iCompleted) {
                         context.read<QuestionsBloc>().add(QuestionsNextEvent());
                       }
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isLastQuestion || !isCurrentIsFilled ? Colors.grey : Colors.blue,
+                        color: isLastQuestion || !iCompleted ? Colors.grey : Colors.blue,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       width: 48,
@@ -473,16 +474,10 @@ class BottomNavQuestion extends StatelessWidget {
   }) async {
     if (currentQuestion == targetQuestion) return;
 
-    final targetIndex = questions.indexOf(targetQuestion);
-    final isNextQuestion = targetIndex > currentIndex;
+    final isAfterQuestion = questions.isAfterQuestion(current: currentQuestion, target: targetQuestion);
     bool isCanNavigateToNextQuestion = true;
-    if (isNextQuestion) {
-      for (int i = 0; i < targetIndex; i++) {
-        isCanNavigateToNextQuestion = _isCurrentIsFilled(i);
-        if (!isCanNavigateToNextQuestion) {
-          break;
-        }
-      }
+    if (isAfterQuestion) {
+      isCanNavigateToNextQuestion = questions.isAllBeforeTargetQuestionIsCompleted(targetQuestion);
     }
 
     if (!isCanNavigateToNextQuestion) {
@@ -491,23 +486,5 @@ class BottomNavQuestion extends StatelessWidget {
     }
 
     context.read<QuestionsBloc>().add(QuestionsMovieToQuestionEvent(targetQuestion));
-  }
-
-  bool _isCurrentIsFilled([int? index]) {
-    final question = questions[index ?? currentIndex];
-    switch (question.runtimeType) {
-      case MultipleChoiceQuestion:
-        final multipleChoiceQuestion = question as MultipleChoiceQuestion;
-        return multipleChoiceQuestion.isAnswered() && multipleChoiceQuestion.isCorrect == true;
-      case TrueFalseQuestion:
-        final trueFalseQuestion = question as TrueFalseQuestion;
-        return trueFalseQuestion.isAnswered() && trueFalseQuestion.isCorrect == true;
-      case DescriptionQuestion:
-      case PuzzleTextQuestion:
-      case MatchQuestion:
-        return question.isDisplay;
-      default:
-        return true;
-    }
   }
 }

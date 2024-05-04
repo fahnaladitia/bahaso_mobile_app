@@ -23,4 +23,62 @@ extension QuestionExt on Question {
         return this;
     }
   }
+
+  bool isCompleted() {
+    switch (runtimeType) {
+      case MultipleChoiceQuestion:
+        final multipleChoiceQuestion = this as MultipleChoiceQuestion;
+        return multipleChoiceQuestion.isAnswered() && multipleChoiceQuestion.isCorrect == true;
+      case TrueFalseQuestion:
+        final trueFalseQuestion = this as TrueFalseQuestion;
+        return trueFalseQuestion.isAnswered() && trueFalseQuestion.isCorrect == true;
+      case DescriptionQuestion:
+      case PuzzleTextQuestion:
+      case MatchQuestion:
+        return isDisplay;
+      default:
+        return true;
+    }
+  }
+}
+
+extension QuestionsExt on List<Question> {
+  bool isLastQuestionWithQuestion(Question question) {
+    return indexOf(question) == length - 1;
+  }
+
+  bool isLastQuestionWithIndex(int index) {
+    return index == length - 1;
+  }
+
+  bool isFirstQuestionWithQuestion(Question question) {
+    return indexOf(question) == 0;
+  }
+
+  bool isFirstQuestionWithIndex(int index) {
+    return index == 0;
+  }
+
+  bool isAllBeforeTargetQuestionIsCompleted(Question target) {
+    final targetIndex = indexOf(target);
+    bool isAllBeforeTargetQuestionIsCompleted = true;
+    for (var i = 0; i < targetIndex; i++) {
+      final question = this[i];
+
+      final isCompleted = question.isCompleted();
+
+      if (!isCompleted) {
+        isAllBeforeTargetQuestionIsCompleted = false;
+        break;
+      }
+    }
+    return isAllBeforeTargetQuestionIsCompleted;
+  }
+
+  bool isAfterQuestion({required Question current, required Question target}) {
+    final currentIndex = indexOf(current);
+    final targetIndex = indexOf(target);
+    final isAfterQuestion = targetIndex > currentIndex;
+    return isAfterQuestion;
+  }
 }
