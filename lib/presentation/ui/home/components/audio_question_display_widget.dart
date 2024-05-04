@@ -83,23 +83,6 @@ class _AudioQuestionDisplayWidgetState extends State<AudioQuestionDisplayWidget>
               ),
             ],
           ),
-          // Slider(
-          //   onChanged: (value) async {
-          //     final duration = await _player.getDuration();
-          //     final position = value * (duration?.inMilliseconds.toDouble() ?? 0.0);
-          //     _player.seek(Duration(milliseconds: position.round()));
-          //   },
-
-          // ),
-          // Text(
-          //   _position != null
-          //       ? '$_positionText / $_durationText'
-          //       : _duration != null
-          //           ? _durationText
-          //           : '',
-          //   style: const TextStyle(fontSize: 16.0),
-          // ),
-          // const SizedBox(height: 8),
         ],
       ),
     );

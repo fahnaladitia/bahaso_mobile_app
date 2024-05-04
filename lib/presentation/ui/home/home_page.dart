@@ -1,16 +1,12 @@
 import 'package:bahaso_mobile_app/di.dart';
 import 'package:bahaso_mobile_app/presentation/blocs/blocs.dart';
 import 'package:bahaso_mobile_app/presentation/ui/home/bloc/questions_bloc.dart';
-import 'package:bahaso_mobile_app/presentation/ui/home/components/multiple_text_question_display_widget.dart';
 import 'package:bahaso_mobile_app/presentation/ui/home/views/build_display_question.dart';
 
 import 'package:bahaso_mobile_app/presentation/utils/toaster_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../domain/models/models.dart';
-
-import 'components/text_question_display_widget.dart';
 import 'dialog/logout_confirmation_dialog.dart';
 import 'views/bottom_nav_question.dart';
 
@@ -57,7 +53,7 @@ class _HomePageState extends State<HomePage> {
           if (state is QuestionsLoaded) {
             return Scaffold(
               appBar: _appbar(context),
-              body: _buildBody(state),
+              body: BuildDisplayQuestion(question: state.currentQuestion),
               bottomNavigationBar: BottomNavQuestion(
                 questions: state.questions,
                 currentIndex: state.currentQuestionIndex,
@@ -85,40 +81,6 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ],
-    );
-  }
-
-  Widget _buildBody(QuestionsLoaded state) {
-    switch (state.currentQuestion.runtimeType) {
-      case MultipleChoiceQuestion:
-      case DescriptionQuestion:
-      case PuzzleTextQuestion:
-      case TrueFalseQuestion:
-        return BuildDisplayQuestion(question: state.currentQuestion);
-      case MatchQuestion:
-        return _buildMatchQuestion(state.currentQuestion as MatchQuestion);
-      default:
-        return const SizedBox.shrink();
-    }
-  }
-
-  Widget _buildMatchQuestion(MatchQuestion currentQuestion) {
-    final choices = currentQuestion.choices;
-    final display = currentQuestion.questionDisplays.firstOrNull;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("${currentQuestion.questionNumber.toString()}."),
-          const SizedBox(height: 8),
-          if (display is TextQuestionDisplay) TextQuestionDisplayWidget(questionDisplay: display),
-          MultipleTextQuestionDisplayWidget(
-            questionData: currentQuestion.selectedData,
-            questionDisplay: choices,
-          ),
-        ],
-      ),
     );
   }
 }

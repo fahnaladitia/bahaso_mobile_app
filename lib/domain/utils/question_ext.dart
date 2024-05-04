@@ -1,4 +1,5 @@
 import 'package:bahaso_mobile_app/domain/models/models.dart';
+import 'package:collection/collection.dart';
 
 extension QuestionExt on Question {
   Question applyToDisplay() {
@@ -80,5 +81,37 @@ extension QuestionsExt on List<Question> {
     final targetIndex = indexOf(target);
     final isAfterQuestion = targetIndex > currentIndex;
     return isAfterQuestion;
+  }
+}
+
+extension PuzzleTextQuestionDisplayExt on PuzzleTextQuestionDisplay {
+  QuestionDataImage? image(PuzzleTextQuestion question) {
+    if (imageSlots.isNotEmpty) {
+      return null;
+    }
+
+    List<QuestionDataImage> images = [];
+
+    for (var i = 0; i < imageSlots.length; i++) {
+      final imageSlot = imageSlots[i];
+      final image = images.firstWhereOrNull((element) => element.slot == imageSlot);
+      if (image != null) {
+        images.add(image);
+      }
+    }
+
+    return images.firstOrNull;
+  }
+
+  List<QuestionDataPlace> places(PuzzleTextQuestion question) {
+    final List<QuestionDataPlace> places = [];
+
+    for (var i = 0; i < placesIds.length; i++) {
+      final placeId = placesIds[i];
+      final place = question.places[placeId];
+      places.add(place);
+    }
+
+    return places;
   }
 }
