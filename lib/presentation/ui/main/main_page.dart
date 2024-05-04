@@ -5,6 +5,7 @@ import 'package:bahaso_mobile_app/presentation/ui/login/login_page.dart';
 import 'package:bahaso_mobile_app/presentation/utils/toaster_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 class MainPage extends StatefulWidget {
   static const String routeName = '/';
@@ -30,6 +31,9 @@ class _MainPageState extends State<MainPage> {
       create: (context) => _authBloc,
       child: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
+          if (state is AuthError || state is AuthUnauthenticated || state is AuthAuthenticated) {
+            FlutterNativeSplash.remove();
+          }
           if (state is AuthError) {
             context.showToastError(state.message);
           }
