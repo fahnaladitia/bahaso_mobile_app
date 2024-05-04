@@ -1,5 +1,6 @@
 import 'package:bahaso_mobile_app/core/common/constants.dart';
 import 'package:bahaso_mobile_app/domain/usecases/usecases.dart';
+import 'package:bahaso_mobile_app/domain/utils/question_ext.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -22,7 +23,7 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
           _questions.addAll(questions);
           final firstQuestion = questions.first;
           if (firstQuestion is DescriptionQuestion) {
-            final updatedQuestion = firstQuestion.selectToDisplay();
+            final updatedQuestion = firstQuestion.applyToDisplay();
             _questions[_questions.indexOf(firstQuestion)] = updatedQuestion;
             emit(QuestionsLoaded(_questions, updatedQuestion, 0));
           } else {
@@ -37,16 +38,9 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
 
     on<QuestionsMovieToQuestionEvent>((event, emit) {
       if (state is QuestionsLoaded) {
-        if (_questions.contains(event.question)) {
-          if (event.question is DescriptionQuestion) {
-            final descriptionQuestion = event.question as DescriptionQuestion;
-            final updatedQuestion = descriptionQuestion.selectToDisplay();
-            _questions[_questions.indexOf(event.question)] = updatedQuestion;
-            emit(QuestionsLoaded(_questions, updatedQuestion, _questions.indexOf(updatedQuestion)));
-          } else {
-            emit(QuestionsLoaded(_questions, event.question, _questions.indexOf(event.question)));
-          }
-        }
+        final updatedQuestion = event.question.applyToDisplay();
+        _questions[_questions.indexOf(event.question)] = updatedQuestion;
+        emit(QuestionsLoaded(_questions, updatedQuestion, _questions.indexOf(updatedQuestion)));
       }
     });
 
@@ -56,13 +50,9 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
         final currentIndex = _questions.indexOf(currentState.currentQuestion);
         if (currentIndex < _questions.length - 1) {
           final nextQuestion = _questions[currentIndex + 1];
-          if (nextQuestion is DescriptionQuestion) {
-            final updatedQuestion = nextQuestion.selectToDisplay();
-            _questions[_questions.indexOf(nextQuestion)] = updatedQuestion;
-            emit(QuestionsLoaded(_questions, updatedQuestion, currentIndex + 1));
-          } else {
-            emit(QuestionsLoaded(_questions, nextQuestion, currentIndex + 1));
-          }
+          final updatedQuestion = nextQuestion.applyToDisplay();
+          _questions[_questions.indexOf(nextQuestion)] = updatedQuestion;
+          emit(QuestionsLoaded(_questions, updatedQuestion, _questions.indexOf(updatedQuestion)));
         }
       }
     });
@@ -73,13 +63,9 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
         final currentIndex = _questions.indexOf(currentState.currentQuestion);
         if (currentIndex > 0) {
           final previousQuestion = _questions[currentIndex - 1];
-          if (previousQuestion is DescriptionQuestion) {
-            final updatedQuestion = previousQuestion.selectToDisplay();
-            _questions[_questions.indexOf(previousQuestion)] = updatedQuestion;
-            emit(QuestionsLoaded(_questions, updatedQuestion, currentIndex - 1));
-          } else {
-            emit(QuestionsLoaded(_questions, previousQuestion, currentIndex - 1));
-          }
+          final updatedQuestion = previousQuestion.applyToDisplay();
+          _questions[_questions.indexOf(previousQuestion)] = updatedQuestion;
+          emit(QuestionsLoaded(_questions, updatedQuestion, _questions.indexOf(updatedQuestion)));
         }
       }
     });

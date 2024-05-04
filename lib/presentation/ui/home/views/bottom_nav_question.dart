@@ -1,8 +1,7 @@
-import 'package:bahaso_mobile_app/core/common/constants.dart';
 import 'package:bahaso_mobile_app/domain/models/models.dart';
 import 'package:bahaso_mobile_app/presentation/components/components.dart';
 import 'package:bahaso_mobile_app/presentation/ui/home/bloc/questions_bloc.dart';
-import 'package:collection/collection.dart';
+import 'package:bahaso_mobile_app/presentation/utils/toaster_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,12 +16,9 @@ class BottomNavQuestion extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    logger.d('${questions.length} - $currentIndex');
     final bool isLastQuestion = currentIndex == questions.length - 1;
     final bool isFirstQuestion = currentIndex == 0;
-    final bool isCurrentIsFilled = questions[currentIndex] is MultipleChoiceQuestion &&
-            (questions[currentIndex] as MultipleChoiceQuestion).isAnswered() ||
-        questions[currentIndex] is DescriptionQuestion;
+    final bool isCurrentIsFilled = _isCurrentIsFilled();
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,18 +95,10 @@ class BottomNavQuestion extends StatelessWidget {
     Question question,
   ) {
     final isSelected = index == currentIndex;
-    final isAnsweredOrDisplayed = (question is MultipleChoiceQuestion && question.selectedData != null) ||
-        (question is DescriptionQuestion && question.isDisplay) ||
-        (question is TrueFalseQuestion && question.isCorrect != null);
-    final color = isSelected
-        ? Colors.blue
-        : isAnsweredOrDisplayed
-            ? Colors.green
-            : Colors.grey;
+    final color = _getColorIndicator(question, isSelected: isSelected);
     return GestureDetector(
-      onTap: () {
-        context.read<QuestionsBloc>().add(QuestionsMovieToQuestionEvent(question));
-      },
+      onTap: () =>
+          _onQuestionIndicatorSelected(context, currentQuestion: questions[currentIndex], targetQuestion: question),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
@@ -161,13 +149,7 @@ class BottomNavQuestion extends StatelessWidget {
 
               final isSubmitted = question.isSubmitted;
 
-              final color = isSelected
-                  ? isSubmitted
-                      ? question.isCorrect == true
-                          ? Colors.green
-                          : Colors.red
-                      : Colors.blue
-                  : Colors.grey;
+              final color = _getColorChoices(question, isSelected: isSelected, isSubmitted: isSubmitted);
 
               return GestureDetector(
                 onTap: isSubmitted ? null : () => _onChoiceSelected(context, isSelected, choice),
@@ -189,8 +171,8 @@ class BottomNavQuestion extends StatelessWidget {
         ),
         question.isSubmitted
             ? question.isCorrect == true
-                ? const Text('Correct!', style: TextStyle(color: Colors.green))
-                : const Text('Incorrect!', style: TextStyle(color: Colors.red))
+                ? Text('Correct!', style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.green))
+                : Text('Incorrect!', style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.red))
             : const SizedBox.shrink(),
         question.isSubmitted && question.isCorrect == true
             ? const SizedBox.shrink()
@@ -201,7 +183,7 @@ class BottomNavQuestion extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: BasicButton.primary(
                       width: double.infinity,
-                      text: question.isSubmitted ? 'retry' : 'Submit',
+                      text: question.buttonSubmitText,
                       onPressed: question.selectedData != null ? () => _onSubmit(context, question.isSubmitted) : null,
                     ),
                   ),
@@ -267,15 +249,13 @@ class BottomNavQuestion extends StatelessWidget {
             (index) {
               final choice = question.choices[index];
 
-              final isSubmitted = question.isSubmitted;
-
               return GestureDetector(
-                onTap: isSubmitted ? null : () => _onPuzzleTextChoiceSelected(context, choice),
+                onTap: () => _onPuzzleTextChoiceSelected(context, choice),
                 child: Container(
                   margin: const EdgeInsets.all(8),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.grey,
+                    color: _getColorChoices(question),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -330,13 +310,7 @@ class BottomNavQuestion extends StatelessWidget {
 
               final isSubmitted = question.isSubmitted;
 
-              final color = isSelected
-                  ? isSubmitted
-                      ? question.isCorrect == true
-                          ? Colors.green
-                          : Colors.red
-                      : Colors.blue
-                  : Colors.grey;
+              final color = _getColorChoices(question, isSelected: isSelected, isSubmitted: isSubmitted);
 
               return GestureDetector(
                 onTap: isSubmitted ? null : () => _onTrueFalseChoiceSelected(context, choice),
@@ -363,7 +337,7 @@ class BottomNavQuestion extends StatelessWidget {
                 ? const Text('Correct!', style: TextStyle(color: Colors.green))
                 : const Text('Incorrect!', style: TextStyle(color: Colors.red))
             : const SizedBox.shrink(),
-        question.isSubmitted && question.isCorrect == true
+        question.isSubmittedAndCorrect
             ? const SizedBox.shrink()
             : Column(
                 children: [
@@ -372,7 +346,7 @@ class BottomNavQuestion extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: BasicButton.primary(
                       width: double.infinity,
-                      text: question.isSubmitted ? 'retry' : 'Submit',
+                      text: question.buttonSubmitText,
                       onPressed: question.selectedData != null ? () => _onSubmit(context, question.isSubmitted) : null,
                     ),
                   ),
@@ -397,13 +371,10 @@ class BottomNavQuestion extends StatelessWidget {
             (index) {
               final choice = options?.choices[index] ?? "";
               final isSelected = question.selectedData.containsValue(choice);
-              final dataTextEntry = question.selectedData
-                  .map((key, value) => MapEntry(value, key))
-                  .entries
-                  .firstWhereOrNull((element) => element.key == choice);
-              final dataText = dataTextEntry?.value;
 
-              final color = isSelected ? Colors.blue : Colors.grey;
+              final dataText = question.getSelectedChoice(choice);
+
+              final color = _getColorChoices(question, isSelected: isSelected);
 
               return GestureDetector(
                 onTap: () => _onMatchChoiceSelected(context, dataText, choice, isSelected: isSelected),
@@ -432,6 +403,111 @@ class BottomNavQuestion extends StatelessWidget {
       context.read<QuestionsBloc>().add(QuestionsUnselectAnswerEvent(dataText));
     } else {
       context.read<QuestionsBloc>().add(QuestionsSelectMatchAnswerEvent(choice));
+    }
+  }
+
+  Color _getColorIndicator(Question question, {bool isSelected = false}) {
+    if (isSelected) {
+      return Colors.blue;
+    }
+    if (question is MultipleChoiceQuestion) {
+      if (question.isAnswered() && question.isSubmitted) {
+        return question.isCorrect == true ? Colors.green : Colors.red;
+      } else {
+        return Colors.grey;
+      }
+    }
+    if (question is DescriptionQuestion || question is MatchQuestion || question is PuzzleTextQuestion) {
+      return question.isDisplay ? Colors.green : Colors.grey;
+    }
+    if (question is TrueFalseQuestion) {
+      if (question.isAnswered() && question.isSubmitted) {
+        return question.isCorrect == true ? Colors.green : Colors.red;
+      } else {
+        return Colors.grey;
+      }
+    }
+    return Colors.grey;
+  }
+
+  Color _getColorChoices(
+    Question question, {
+    bool isSelected = false,
+    bool isSubmitted = false,
+  }) {
+    if (question is MultipleChoiceQuestion) {
+      if (isSelected) {
+        if (isSubmitted) {
+          return question.isCorrect == true ? Colors.green : Colors.red;
+        }
+        return Colors.blue;
+      }
+      return Colors.grey;
+    }
+
+    if (question is TrueFalseQuestion) {
+      if (isSelected) {
+        if (isSubmitted) {
+          return question.isCorrect == true ? Colors.green : Colors.red;
+        }
+        return Colors.blue;
+      }
+      return Colors.grey;
+    }
+
+    if (question is PuzzleTextQuestion) {
+      return isSelected ? Colors.blue : Colors.grey;
+    }
+
+    if (question is MatchQuestion) {
+      return isSelected ? Colors.blue : Colors.grey;
+    }
+
+    return Colors.grey;
+  }
+
+  void _onQuestionIndicatorSelected(
+    BuildContext context, {
+    required Question currentQuestion,
+    required Question targetQuestion,
+  }) async {
+    if (currentQuestion == targetQuestion) return;
+
+    final targetIndex = questions.indexOf(targetQuestion);
+    final isNextQuestion = targetIndex > currentIndex;
+    bool isCanNavigateToNextQuestion = true;
+    if (isNextQuestion) {
+      for (int i = 0; i < targetIndex; i++) {
+        isCanNavigateToNextQuestion = _isCurrentIsFilled(i);
+        if (!isCanNavigateToNextQuestion) {
+          break;
+        }
+      }
+    }
+
+    if (!isCanNavigateToNextQuestion) {
+      context.showToastInfo('Please answer the question first or retry the incorrect answer.');
+      return;
+    }
+
+    context.read<QuestionsBloc>().add(QuestionsMovieToQuestionEvent(targetQuestion));
+  }
+
+  bool _isCurrentIsFilled([int? index]) {
+    final question = questions[index ?? currentIndex];
+    switch (question.runtimeType) {
+      case MultipleChoiceQuestion:
+        final multipleChoiceQuestion = question as MultipleChoiceQuestion;
+        return multipleChoiceQuestion.isAnswered() && multipleChoiceQuestion.isCorrect == true;
+      case TrueFalseQuestion:
+        final trueFalseQuestion = question as TrueFalseQuestion;
+        return trueFalseQuestion.isAnswered() && trueFalseQuestion.isCorrect == true;
+      case DescriptionQuestion:
+      case PuzzleTextQuestion:
+      case MatchQuestion:
+        return question.isDisplay;
+      default:
+        return true;
     }
   }
 }
