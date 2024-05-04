@@ -2,10 +2,6 @@ import 'package:bahaso_mobile_app/core/common/constants.dart';
 import 'package:bahaso_mobile_app/data/sources/remote/responses/responses.dart';
 import 'package:bahaso_mobile_app/domain/models/models.dart';
 
-final regexMp4 = RegExp(r'https?:\/\/.*\.mp4(\?.*)?$');
-final regexImage = RegExp(r'https?:\/\/.*\.(?:png|jpg|jpeg|gif)(\?.*)?$');
-final regexAudio = RegExp(r'https?:\/\/.*\.(?:mp3|wav|ogg)(\?.*)?$');
-
 extension QuestionsMapper on GetQuestionsResponse {
   List<Question> toDomains() {
     return data?.map((question) {
@@ -66,7 +62,7 @@ extension QuestionsMapper on GetQuestionsResponse {
 
       final placesIds = <int>[];
       // Check if the blank
-      final blankRegex = RegExp(r' blank');
+
       final matches = blankRegex.allMatches(e);
 
       for (var match in matches) {
