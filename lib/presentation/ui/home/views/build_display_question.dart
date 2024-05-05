@@ -19,31 +19,31 @@ class BuildDisplayQuestion extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTitle(),
-          const SizedBox(height: 8),
+          _buildTitle(context),
           _buildQuestion(),
         ],
       ),
     );
   }
 
-  Widget _buildTitle() {
+  Widget _buildTitle(BuildContext context) {
+    final style = Theme.of(context).textTheme.titleMedium;
     switch (question.runtimeType) {
       case PuzzleTextQuestion:
         final puzzleTextQuestion = question as PuzzleTextQuestion;
-        return Text("${puzzleTextQuestion.questionNumber}.");
+        return Text("${puzzleTextQuestion.questionNumber}.", style: style);
       case DescriptionQuestion:
         final descriptionQuestion = question as DescriptionQuestion;
-        return Text("${descriptionQuestion.questionNumber}.");
+        return Text("${descriptionQuestion.questionNumber}.", style: style);
       case MultipleChoiceQuestion:
         final multipleChoiceQuestion = question as MultipleChoiceQuestion;
-        return Text("${multipleChoiceQuestion.questionNumber}.");
+        return Text("${multipleChoiceQuestion.questionNumber}.", style: style);
       case TrueFalseQuestion:
         final trueFalseQuestion = question as TrueFalseQuestion;
-        return Text("${trueFalseQuestion.questionNumber}.");
+        return Text("${trueFalseQuestion.questionNumber}.", style: style);
       case MatchQuestion:
         final matchQuestion = question as MatchQuestion;
-        return Text("${matchQuestion.questionNumber}.");
+        return Text("${matchQuestion.questionNumber}.", style: style);
       default:
         return const SizedBox.shrink();
     }
