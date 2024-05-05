@@ -62,7 +62,16 @@ class _HomePageState extends State<HomePage> {
               ),
             );
           }
-          return const SizedBox.shrink();
+          if (state is QuestionsError) {
+            return Scaffold(
+              appBar: _appbar(context),
+              body: Center(
+                child: Text(state.message),
+              ),
+            );
+          }
+
+          return const Scaffold(body: SizedBox.shrink());
         },
       ),
     );

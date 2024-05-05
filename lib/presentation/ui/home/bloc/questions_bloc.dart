@@ -1,4 +1,4 @@
-import 'package:bahaso_mobile_app/core/common/constants.dart';
+import 'package:bahaso_mobile_app/core/common/exceptions/exceptions.dart';
 import 'package:bahaso_mobile_app/domain/usecases/usecases.dart';
 import 'package:bahaso_mobile_app/domain/utils/question_ext.dart';
 import 'package:bloc/bloc.dart';
@@ -30,8 +30,9 @@ class QuestionsBloc extends Bloc<QuestionsEvent, QuestionsState> {
             emit(QuestionsLoaded(_questions, firstQuestion, 0));
           }
         }
+      } on BaseException catch (e) {
+        emit(QuestionsError(e.message));
       } catch (e) {
-        logger.e(e.toString());
         emit(QuestionsError(e.toString()));
       }
     });
