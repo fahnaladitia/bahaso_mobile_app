@@ -1,16 +1,30 @@
-# bahaso_mobile_app
+[![Build Status](https://github.com/fahnaladitia/bahaso_mobile_app/actions/workflows/android.yml/badge.svg)](https://github.com/fahnaladitia/bahaso_mobile_app/actions)
 
-A new Flutter project.
+## Bahaso Learn App
+This is a simple app to learn Language. It is Simple game to learn language by playing quiz.
 
-## Getting Started
+## Build Artifacts
+You can download the build artifacts from the [Github Action Page](https://github.com/fahnaladitia/bahaso_mobile_app/actions/workflows/android.yml). Open The latest build and download the artifacts.
 
-This project is a starting point for a Flutter application.
+## List of Features
 
-A few resources to get you started if this is your first Flutter project:
+### 1. Login:
+- User can login using email and password.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 2. Register:
+- User can register using email and password.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 3. Home / Quiz List:
+- User can see quiz list.
+- User can see quiz detail.
+- User can play quiz.
+
+## Stack / Libraries Used:
+
+- Framework: Flutter
+- video_player: for playing video
+- audioplayers: for playing audio
+- dio: for network client
+- bloc: for state management
+- hive: for local storage
+- get_it: for dependency injection
