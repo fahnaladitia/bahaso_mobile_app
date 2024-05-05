@@ -86,7 +86,7 @@ extension QuestionsExt on List<Question> {
 
 extension PuzzleTextQuestionDisplayExt on PuzzleTextQuestionDisplay {
   QuestionDataImage? image(PuzzleTextQuestion question) {
-    if (imageSlots.isNotEmpty) {
+    if (imageSlots.isEmpty) {
       return null;
     }
 
@@ -94,7 +94,7 @@ extension PuzzleTextQuestionDisplayExt on PuzzleTextQuestionDisplay {
 
     for (var i = 0; i < imageSlots.length; i++) {
       final imageSlot = imageSlots[i];
-      final image = images.firstWhereOrNull((element) => element.slot == imageSlot);
+      final image = question.images.firstWhereOrNull((element) => element.slot == imageSlot);
       if (image != null) {
         images.add(image);
       }
