@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../../domain/models/models.dart';
 import '../../../domain/usecases/usecases.dart';
 
 part 'auth_event.dart';
@@ -12,9 +13,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(this._checkLoginUseCase, this._logoutUseCase) : super(AuthInitial()) {
     on<AuthCheckEvent>((__, emit) async {
       emit(AuthLoading());
-      final result = await _checkLoginUseCase();
-      if (result) {
-        emit(AuthAuthenticated());
+      final auth = await _checkLoginUseCase();
+      if (auth != null) {
+        emit(AuthAuthenticated(auth));
       } else {
         emit(AuthUnauthenticated());
       }

@@ -1,4 +1,5 @@
 import 'package:bahaso_mobile_app/di.dart';
+import 'package:bahaso_mobile_app/domain/models/models.dart';
 import 'package:bahaso_mobile_app/presentation/blocs/blocs.dart';
 import 'package:bahaso_mobile_app/presentation/ui/home/bloc/questions_bloc.dart';
 import 'package:bahaso_mobile_app/presentation/ui/home/views/build_display_question.dart';
@@ -11,7 +12,8 @@ import 'dialog/logout_confirmation_dialog.dart';
 import 'views/bottom_nav_question.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final Auth auth;
+  const HomePage({Key? key, required this.auth}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -68,7 +70,32 @@ class _HomePageState extends State<HomePage> {
 
   AppBar _appbar(BuildContext context) {
     return AppBar(
-      title: const Text('Quiz App'),
+      title: Row(
+        children: [
+          Image.asset(
+            'assets/images/bahaso_logo.png',
+            width: 40,
+            height: 40,
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome, ${widget.auth.email}',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                Text(
+                  'Bahaso Language Learning App',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade500),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      centerTitle: false,
       actions: [
         IconButton(
           icon: const Icon(Icons.logout),
@@ -81,6 +108,10 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ],
+      bottom: const PreferredSize(
+        preferredSize: Size.fromHeight(1),
+        child: Divider(),
+      ),
     );
   }
 }

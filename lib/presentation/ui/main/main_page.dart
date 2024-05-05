@@ -43,7 +43,7 @@ class _MainPageState extends State<MainPage> {
             return const Scaffold(body: Center(child: CircularProgressIndicator()));
           }
           if (state is AuthAuthenticated) {
-            return const HomePage();
+            return HomePage(auth: state.auth);
           }
 
           if (state is AuthUnauthenticated) {
