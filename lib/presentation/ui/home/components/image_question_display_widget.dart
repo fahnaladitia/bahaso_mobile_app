@@ -1,4 +1,5 @@
 import 'package:bahaso_mobile_app/domain/models/models.dart';
+import 'package:bahaso_mobile_app/presentation/components/components.dart';
 import 'package:flutter/material.dart';
 
 class ImageQuestionDisplayWidget extends StatelessWidget {
@@ -10,7 +11,11 @@ class ImageQuestionDisplayWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Image.network(questionDisplay.question),
+        BasicCachedImage(
+          imageUrl: questionDisplay.imageUrl,
+          width: double.infinity,
+          height: 240,
+        ),
         const SizedBox(height: 8),
       ],
     );
