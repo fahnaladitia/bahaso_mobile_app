@@ -2,6 +2,8 @@ import 'package:bahaso_mobile_app/domain/models/models.dart';
 import 'package:bahaso_mobile_app/domain/utils/question_ext.dart';
 import 'package:flutter/material.dart';
 
+import '../../../components/components.dart';
+
 class PuzzleTextQuestionDisplayWidget extends StatelessWidget {
   final PuzzleTextQuestionDisplay questionDisplay;
   final PuzzleTextQuestion question;
@@ -25,7 +27,7 @@ class PuzzleTextQuestionDisplayWidget extends StatelessWidget {
                 width: MediaQuery.of(context).size.width * 0.4,
                 height: MediaQuery.of(context).size.width * 0.4,
                 padding: const EdgeInsets.only(right: 8),
-                child: Image.network(image.imageUrl),
+                child: BasicCachedImage(imageUrl: image.imageUrl, fit: BoxFit.fitWidth),
               ),
             Text(questionDisplay.display(places)),
           ],

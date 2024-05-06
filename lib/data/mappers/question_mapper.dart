@@ -28,16 +28,16 @@ extension QuestionsMapper on GetQuestionsResponse {
 
     final mappedDisplays = list.map((e) {
       if (regexMp4.hasMatch(e)) {
-        return VideoQuestionDisplay(question: e);
+        return VideoQuestionDisplay(videoUrl: e);
       }
       if (regexImage.hasMatch(e)) {
-        return ImageQuestionDisplay(question: e);
+        return ImageQuestionDisplay(imageUrl: e);
       }
       if (regexAudio.hasMatch(e)) {
-        return AudioQuestionDisplay(question: e);
+        return AudioQuestionDisplay(audioUrl: e);
       }
 
-      return TextQuestionDisplay(question: e);
+      return TextQuestionDisplay(text: e);
     }).toList();
     return DescriptionQuestion(
       questionDisplays: mappedDisplays,
@@ -51,13 +51,13 @@ extension QuestionsMapper on GetQuestionsResponse {
     int count = 0;
     final mappedDisplays = list.map((e) {
       if (regexMp4.hasMatch(e)) {
-        return VideoQuestionDisplay(question: e);
+        return VideoQuestionDisplay(videoUrl: e);
       }
       if (regexImage.hasMatch(e)) {
-        return ImageQuestionDisplay(question: e);
+        return ImageQuestionDisplay(imageUrl: e);
       }
       if (regexAudio.hasMatch(e)) {
-        return AudioQuestionDisplay(question: e);
+        return AudioQuestionDisplay(audioUrl: e);
       }
 
       final placesIds = <int>[];
@@ -80,12 +80,12 @@ extension QuestionsMapper on GetQuestionsResponse {
       if (placesIds.isNotEmpty) {
         return PuzzleTextQuestionDisplay(
           placesIds: placesIds,
-          question: e,
+          text: e,
           imageSlots: data.dataimage?.isNotEmpty == true ? placesIds : [],
         );
       }
 
-      return TextQuestionDisplay(question: e);
+      return TextQuestionDisplay(text: e);
     }).toList();
 
     final List<QuestionData> datas = [];
@@ -140,16 +140,16 @@ extension QuestionsMapper on GetQuestionsResponse {
     final correctAnswer = question.value;
     final mappedDisplays = list.map((e) {
       if (regexMp4.hasMatch(e)) {
-        return VideoQuestionDisplay(question: e);
+        return VideoQuestionDisplay(videoUrl: e);
       }
       if (regexImage.hasMatch(e)) {
-        return ImageQuestionDisplay(question: e);
+        return ImageQuestionDisplay(imageUrl: e);
       }
       if (regexAudio.hasMatch(e)) {
-        return AudioQuestionDisplay(question: e);
+        return AudioQuestionDisplay(audioUrl: e);
       }
 
-      return TextQuestionDisplay(question: e);
+      return TextQuestionDisplay(text: e);
     }).toList();
 
     final List<QuestionDataText> mappedData = [];
@@ -176,7 +176,7 @@ extension QuestionsMapper on GetQuestionsResponse {
     final data = GetQuestionsResponseDatumDataClass.fromMap(question.data);
 
     final mappedDisplays = [
-      TextQuestionDisplay(question: title),
+      TextQuestionDisplay(text: title),
     ];
 
     final List<QuestionData> mappedData = [];
@@ -222,16 +222,16 @@ extension QuestionsMapper on GetQuestionsResponse {
     final correctAnswer = question.value;
     final mappedDisplays = list.map((e) {
       if (regexMp4.hasMatch(e)) {
-        return VideoQuestionDisplay(question: e);
+        return VideoQuestionDisplay(videoUrl: e);
       }
       if (regexImage.hasMatch(e)) {
-        return ImageQuestionDisplay(question: e);
+        return ImageQuestionDisplay(imageUrl: e);
       }
       if (regexAudio.hasMatch(e)) {
-        return AudioQuestionDisplay(question: e);
+        return AudioQuestionDisplay(audioUrl: e);
       }
 
-      return TextQuestionDisplay(question: e);
+      return TextQuestionDisplay(text: e);
     }).toList();
 
     final List<QuestionDataTrueFalse> mappedData = data.map((e) {

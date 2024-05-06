@@ -10,7 +10,7 @@ class TextQuestionDisplayWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(questionDisplay.question),
+        Text(questionDisplay.text),
         const SizedBox(height: 8),
       ],
     );

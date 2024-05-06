@@ -2,6 +2,8 @@ import 'package:bahaso_mobile_app/domain/models/models.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../components/components.dart';
+
 class VideoQuestionDisplayWidget extends StatefulWidget {
   final VideoQuestionDisplay videoQuestionDisplay;
   const VideoQuestionDisplayWidget({Key? key, required this.videoQuestionDisplay}) : super(key: key);
@@ -87,7 +89,20 @@ class _VideoQuestionDisplayWidgetState extends State<VideoQuestionDisplayWidget>
                   ),
                 ],
               )
-            : const CircularProgressIndicator(),
+            : BasicShimmer.aspectRatio(aspectRatio: 16 / 9),
+        // : AspectRatio(
+        //     aspectRatio: 16 / 9,
+        //     child: Shimmer.fromColors(
+        //       baseColor: Colors.grey.shade300,
+        //       highlightColor: Colors.grey.shade100,
+        //       child: const Card(
+        //         clipBehavior: Clip.antiAlias,
+        //         elevation: 0.0,
+        //         margin: EdgeInsets.zero,
+        //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        //       ),
+        //     ),
+        //   ),
         const SizedBox(height: 8),
       ],
     );
